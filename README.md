@@ -124,7 +124,7 @@ Open it with `vim test.txt`, press `i` to insert text, write a sentence, press `
 Now, run your command from anywhere!
 `devcat test.txt`
 
-Check the file again with `cat test.txt`. The original text is gone, replaced entirely by cat language!
+Check the file again with `cat test.txt`. The original text is gone, replaced entirely by cat language! *(The **`cat`** command, short for "concatenate," is most commonly used to quickly read a file and print its contents directly to your terminal screen).*
 
 *(Finished early? Check out [The Command Line Murders](https://github.com/veltman/clmystery) to practice your new detective CLI skills!)*
 
