@@ -85,7 +85,7 @@ Go back to your home folder (`cd ~`) and create a folder for binary executables:
 
 ### Step 2: The Mystery Script
 Move the bash script from the workshop folder into your new `bin` folder (`cp` copies files):
-`cp ~/dev/workshop_repo/mystery_script.sh ~/bin/`
+`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/mystery_script.sh ~/bin/`
 
 Right now, it's just a text file. We need to make it an executable program using **`chmod`** (Change Mode):
 `cd ~/bin`
