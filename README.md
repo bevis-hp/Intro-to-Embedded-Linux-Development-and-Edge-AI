@@ -77,7 +77,7 @@ Let's learn how to navigate.
 Create a development folder and clone our workshop repository:
 `mkdir dev`
 `cd dev`
-`git clone <YOUR_GITHUB_REPO_URL_HERE>`
+`git clone https://github.com/bevis-hp/Intro-to-Embedded-Linux-Development-and-Edge-AI`
 
 Go back to your home folder (`cd ~`) and create a folder for binary executables:
 `cd ~`
