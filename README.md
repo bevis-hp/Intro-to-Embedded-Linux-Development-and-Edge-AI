@@ -68,12 +68,15 @@ You are now inside your Raspberry Pi! You are currently sitting in your **home d
 
 ## Part 2: Taming the Command Line
 
-Let's learn how to navigate. 
-* **`mkdir`** (Make Directory): Creates a new folder.
-* **`cd`** (Change Directory): Moves you into a folder.
-* **`ls`** (List): Shows you what is inside your current folder.
+### Step 1: Installing a Superpower (Vim)
+Before we start making files, let's install a better text editor. We will use `apt-get` to install programs in Debian-based Linux operating systems like Raspberry Pi OS. 
 
-### Step 1: Setting up the Workspace
+Run this command:
+`sudo apt-get install vim -y`
+
+*What is Vim?* It is an upgraded version of `vi`, one of the oldest text editors which, along with `nano`, comes preinstalled on almost all Linux distributions. Vim is notoriously a bit esoteric and relies heavily on keyboard commands instead of a mouse. However, once you get the hang of it, it becomes an absolute superpower for swiftly editing files on headless servers. Today will give you a small taste of that!
+
+### Step 2: Setting up the Workspace
 Create a development folder and clone our workshop repository:
 `mkdir dev`
 `cd dev`
@@ -83,7 +86,7 @@ Go back to your home folder (`cd ~`) and create a folder for binary executables:
 `cd ~`
 `mkdir bin`
 
-### Step 2: The Mystery Script
+### Step 3: The Mystery Script
 Move the bash script from the workshop folder into your new `bin` folder (`cp` copies files):
 `cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/mystery_script.sh ~/bin/`
 
@@ -97,10 +100,10 @@ Run it! Notice we use `./` to tell the computer "run the file in *this exact fol
 It prints an ASCII cat and asks for a text file. Let's rename the script using **`mv`** (Move/Rename):
 `mv mystery_script.sh devcat`
 
-### Step 3: Modifying the PATH
+### Step 4: Modifying the PATH
 We want `devcat` to run from anywhere, without needing the `./`. We do this by adding our `bin` folder to the system's `$PATH`.
-1. Open your bash configuration file with the **`vi`** text editor:
-   `vi ~/.bashrc`
+1. Open your bash configuration file with the **`vim`** text editor:
+   `vim ~/.bashrc`
 2. Press `G` (capital G) to jump to the bottom of the file.
 3. Press `o` (lowercase o) to open a new line and enter "Insert Mode".
 4. Type exactly: `export PATH="$HOME/bin:$PATH"`
@@ -111,11 +114,11 @@ Reload the configuration using **`source`** and verify it with **`echo`**:
 `source ~/.bashrc`
 `echo $PATH`
 
-### Step 4: Testing DevCat
+### Step 5: Testing DevCat
 Go to your home directory (`cd ~`). Let's create an empty text file using **`touch`**:
 `touch test.txt`
 
-Open it with `vi test.txt`, press `i` to insert text, write a sentence, press `Esc`, and type `:wq` to save. 
+Open it with `vim test.txt`, press `i` to insert text, write a sentence, press `Esc`, and type `:wq` to save. 
 
 Now, run your command from anywhere!
 `devcat test.txt`
@@ -159,7 +162,7 @@ Copy the Python script from the workshop repo to your current folder:
 Now, let's download an image from the internet using `curl` and output (`-o`) it as `test_image.jpg`:
 `curl -o test_image.jpg https://raw.githubusercontent.com/opencv/opencv/master/samples/data/ml.png`
 
-Open the Python script with `vi sobel_edge.py` and ensure the `target_image` variable matches the file you just downloaded (`test_image.jpg`).
+Open the Python script with `vim sobel_edge.py` and ensure the `target_image` variable matches the file you just downloaded (`test_image.jpg`).
 
 ### Step 4: Run the Filter
 Run your python script:
