@@ -158,7 +158,7 @@ Activate the environment and install OpenCV:
 
 ### Step 3: Preparing the Assets
 Copy the Python script from the workshop repo to your current folder:
-`cp ~/dev/workshop_repo/sobel_edge.py .`
+`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/sobel_edge.py .`
 
 Now, let's download an image from the internet using `curl` and output (`-o`) it as `test_image.jpg`:
 `curl -o test_image.jpg https://raw.githubusercontent.com/opencv/opencv/master/samples/data/ml.png`
