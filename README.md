@@ -113,6 +113,7 @@ We want `devcat` to run from anywhere, without needing the `./`. We do this by a
 Reload the configuration using **`source`** and verify it with **`echo`**:
 `source ~/.bashrc`
 `echo $PATH`
+You should see `home/<your-username>/bin` in the list displayed if you have done this correctly.
 
 ### Step 5: Testing DevCat
 Go to your home directory (`cd ~`). Let's create an empty text file using **`touch`**:
