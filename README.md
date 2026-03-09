@@ -173,6 +173,8 @@ A window should pop up showing the original image alongside a mathematically tra
 
 **Next Steps:** With this environment set up, you are ready to plug in a USB camera, capture a live video feed, and pass those frames into an object recognition neural network like YOLO (You Only Look Once) to track real-world items in real-time!
 
+---
+
 ## Part 4: Live Video with a USB Camera
 
 Now that we can process static images, let's process real-time video using a standard USB webcam. 
@@ -211,11 +213,11 @@ A new window should open on your Raspberry Pi desktop via Raspberry Pi Connect s
 * **Wrong Camera ID:** If the script fails to open the camera, change the `camera_id` variable in your script to `1` or `2` (trying the other `/dev/video` numbers listed in Step 1).
 * **Low Voltage:** Webcams draw significant power. If a "Low voltage warning" appears on your desktop or the camera drops out, ensure you are using an official, properly rated Raspberry Pi power adapter.
 
+---
+
 ## Part 5: Seeing the Edges in Real-Time
 
 We have successfully processed a static image, and we have successfully streamed live video. Now, let's combine them. We are going to apply the Sobel edge detection filter to every single frame of our live video feed as it comes in. 
-
-
 
 ### Step 1: Preparing the Script
 Ensure you are still in your `opencv_testing` directory and your virtual environment is active:
@@ -245,3 +247,42 @@ Press `q` on your keyboard while selecting one of the video windows to close the
 Applying edge filters to every single frame of a 30fps video is just one image processing technique, but as you might have noticed if your video feed lagged slightly, it is quite computationally intensive. 
 
 Now that we have a live video feed established, we don't have to process every pixel. We can use simpler, more efficient techniques to compare frames against each other over time. This allows us to do **motion detection**, which leads us directly into Part 6...
+
+---
+
+## Part 6: Motion Detection via Frame Differencing
+
+Applying heavy math (like the Sobel filter) to every pixel of every frame takes a lot of processing power. If we are building a security camera or a wildlife trap, we only care when something *moves*. 
+
+Instead of analyzing every frame from scratch, we can take a "baseline" photo of the background. Then, for every new video frame, we mathematically subtract the new frame from the baseline. If the result is zero, nothing has changed. If the result is greater than zero, those specific pixels must represent movement! 
+
+### Step 1: Preparing the Script
+Make sure your camera is plugged in, you are still in your `opencv_testing` directory, and your virtual environment is active:
+`cd ~/dev/opencv_testing`
+`source .venv/bin/activate`
+
+Copy the motion detection script from our workshop repository:
+`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/motion_detect.py .`
+
+### Step 2: Inspecting the Code
+Let's open it up in our text editor:
+`vim motion_detect.py`
+
+Scroll down and look at the `cv2.absdiff()` function. This calculates the absolute difference between our initial baseline frame and the current frame. Next, we use `cv2.threshold()` to convert any slight changes into stark white pixels, and `cv2.findContours()` to draw a green box around those white pixels.
+
+*(Note: Remember to change the `camera_id` variable using Insert Mode if your camera is not at index `0`, then type `:wq` to save and quit).*
+
+### Step 3: Run the Motion Tracker
+**Important:** Before you run this command, point the camera at a static background and *step out of the frame*. The script uses the very first frame it sees as the empty baseline. 
+
+Execute your script:
+`python motion_detect.py`
+
+Two windows will pop up:
+1. **Motion Detection:** The live color feed. When you walk into the frame, a green rectangle should track your movement.
+2. **Threshold (The Math):** A black-and-white window showing exactly what the computer "sees" as motion. White pixels are moving objects; black pixels are the static background.
+
+Press `q` on your keyboard while selecting one of the video windows to safely exit the program.
+
+### What's Next?
+Motion detection tells us *where* something is, but it doesn't tell us *what* it is. A waving tree branch will trigger this script just as easily as a person. To solve this, we need to introduce Deep Learning and Object Recognition...
