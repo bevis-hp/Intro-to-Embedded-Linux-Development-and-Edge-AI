@@ -172,3 +172,41 @@ Run your python script:
 A window should pop up showing the original image alongside a mathematically transformed image highlighting all the edges! This Sobel filter is foundational to how computers "see" shapes.
 
 **Next Steps:** With this environment set up, you are ready to plug in a USB camera, capture a live video feed, and pass those frames into an object recognition neural network like YOLO (You Only Look Once) to track real-world items in real-time!
+
+## Part 4: Live Video with a USB Camera
+
+Now that we can process static images, let's process real-time video using a standard USB webcam. 
+
+### Step 1: Connect and Identify the Camera
+Plug your USB web camera into one of the Raspberry Pi's USB ports. 
+
+To use our camera, we need to find its hardware device ID. We will use `apt-get` to install a small utility package that helps list connected video devices. Run:
+`sudo apt-get install v4l-utils -y`
+
+Now, list all connected video devices:
+`v4l2-ctl --list-devices`
+
+You will see your camera's name (e.g., Logitech HD Pro Webcam) listed along with several `/dev/video` endpoints beneath it. Look for the very first `/dev/video` number listed under your camera's name (usually `/dev/video0`). That number (`0`) is your camera ID.
+
+### Step 2: Preparing the Script
+Ensure you are still in your `opencv_testing` directory and your virtual environment is active:
+`cd ~/dev/opencv_testing`
+`source .venv/bin/activate`
+
+Copy the camera test script from our workshop repository to your current working directory:
+`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/usb_camera_test.py .`
+
+Let's look inside the script using our text editor to see how it works:
+`vim usb_camera_test.py`
+
+Check the `camera_id` variable near the top of the file. If your camera ID from Step 1 was anything other than `0`, press `i` to enter Insert Mode, change the number, press `Esc`, and type `:wq` to save and quit. If it was `0`, you can just type `:q` to quit without saving.
+
+### Step 3: Run the Live Feed
+Execute your script:
+`python usb_camera_test.py`
+
+A new window should open on your Raspberry Pi desktop via Raspberry Pi Connect showing a live video feed from your webcam. Wave to the camera! When you are ready to stop the stream, make sure the video window is actively selected and press the `q` key on your keyboard to safely exit the script and close the window.
+
+**Troubleshooting:**
+* **Wrong Camera ID:** If the script fails to open the camera, change the `camera_id` variable in your script to `1` or `2` (trying the other `/dev/video` numbers listed in Step 1).
+* **Low Voltage:** Webcams draw significant power. If a "Low voltage warning" appears on your desktop or the camera drops out, ensure you are using an official, properly rated Raspberry Pi power adapter.
