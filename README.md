@@ -210,3 +210,38 @@ A new window should open on your Raspberry Pi desktop via Raspberry Pi Connect s
 **Troubleshooting:**
 * **Wrong Camera ID:** If the script fails to open the camera, change the `camera_id` variable in your script to `1` or `2` (trying the other `/dev/video` numbers listed in Step 1).
 * **Low Voltage:** Webcams draw significant power. If a "Low voltage warning" appears on your desktop or the camera drops out, ensure you are using an official, properly rated Raspberry Pi power adapter.
+
+## Part 5: Seeing the Edges in Real-Time
+
+We have successfully processed a static image, and we have successfully streamed live video. Now, let's combine them. We are going to apply the Sobel edge detection filter to every single frame of our live video feed as it comes in. 
+
+
+
+### Step 1: Preparing the Script
+Ensure you are still in your `opencv_testing` directory and your virtual environment is active:
+`cd ~/dev/opencv_testing`
+`source .venv/bin/activate`
+
+Copy the real-time edge detection script from our workshop repository:
+`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/live_sobel.py .`
+
+### Step 2: Inspecting the Code
+Let's open it up in Vim to see how we combined the two concepts:
+`vim live_sobel.py`
+
+Look closely at the `while True:` loop. You will see that instead of just displaying the frame, we are intercepting it, converting it to grayscale, doing the heavy Sobel math, and *then* displaying the newly generated edge frame. 
+
+*(Note: If your camera ID was not `0` in the last part, press `i`, change the `camera_id` variable, press `Esc`, and type `:wq` to save and quit. Otherwise, just type `:q` to exit).*
+
+### Step 3: Run the Edge Stream
+Execute your script:
+`python live_sobel.py`
+
+You should now see two windows: your standard live feed, and a real-time feed consisting entirely of calculated edges! Move your hand in front of the camera and watch the math happen instantly. 
+
+Press `q` on your keyboard while selecting one of the video windows to close the program.
+
+### What's Next?
+Applying edge filters to every single frame of a 30fps video is just one image processing technique, but as you might have noticed if your video feed lagged slightly, it is quite computationally intensive. 
+
+Now that we have a live video feed established, we don't have to process every pixel. We can use simpler, more efficient techniques to compare frames against each other over time. This allows us to do **motion detection**, which leads us directly into Part 6...
