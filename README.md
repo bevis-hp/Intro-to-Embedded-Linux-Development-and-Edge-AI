@@ -10,10 +10,6 @@ A workshop to teach student embedded developers how to set up a SBC with linux, 
            \___)=(___/                        ||----w |
                                               ||     ||
 
-# Edge AI on the Raspberry Pi: From Headless Setup to Computer Vision
-
-Welcome to the workshop! Today, we are going to transform a bare circuit board into an Edge AI device capable of seeing the world. 
-
 ## Part 1: Booting Up the Edge
 
 ### What is a Raspberry Pi and Edge AI?
