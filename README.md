@@ -10,6 +10,10 @@ A workshop to teach student embedded developers how to set up a SBC with linux, 
            \___)=(___/                        ||----w |
                                               ||     ||
 
+# Edge AI on the Raspberry Pi: From Headless Setup to Computer Vision
+
+Welcome to the workshop! Today, we are going to transform a bare circuit board into an Edge AI device capable of seeing the world. 
+
 ## Part 1: Booting Up the Edge
 
 ### What is a Raspberry Pi and Edge AI?
@@ -19,7 +23,7 @@ Traditionally, AI requires massive, centralized servers in giant data centers. B
 
 **Learning Objectives:**
 1. Provision and remotely access a headless embedded Linux system.
-2. Learn fundamental command-line interface (CLI) navigation and scripting.
+2. Master fundamental command-line interface (CLI) navigation and scripting.
 3. Establish a modern Python virtual environment to run an OpenCV computer vision pipeline.
 
 ### Step 1: Create a Raspberry Pi Connect Account
@@ -31,6 +35,7 @@ Later on, we will need to see the graphical output of our computer vision script
 3. Select the recommended **Raspberry Pi OS (64-bit)** (Full desktop version).
 4. Select your SD card as the storage.
 5. **CRUCIAL STEP:** Before clicking write, edit the OS Customization settings!
+   
    * Set a hostname.
    * Set a username and password (write these down!).
    * Configure your Wi-Fi (if not using ethernet).
@@ -68,6 +73,11 @@ You are now inside your Raspberry Pi! You are currently sitting in your **home d
 
 ## Part 2: Taming the Command Line
 
+Let's learn how to navigate. 
+* **`mkdir`** (Make Directory): Creates a new folder.
+* **`cd`** (Change Directory): Moves you into a folder.
+* **`ls`** (List): Shows you what is inside your current folder.
+
 ### Step 1: Installing a Superpower (Vim)
 Before we start making files, let's install a better text editor. We will use `apt-get` to install programs in Debian-based Linux operating systems like Raspberry Pi OS. 
 
@@ -80,7 +90,7 @@ Run this command:
 Create a development folder and clone our workshop repository:
 `mkdir dev`
 `cd dev`
-`git clone https://github.com/bevis-hp/Intro-to-Embedded-Linux-Development-and-Edge-AI`
+`git clone https://github.com/bevis-hp/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI.git`
 
 Go back to your home folder (`cd ~`) and create a folder for binary executables:
 `cd ~`
@@ -88,7 +98,7 @@ Go back to your home folder (`cd ~`) and create a folder for binary executables:
 
 ### Step 3: The Mystery Script
 Move the bash script from the workshop folder into your new `bin` folder (`cp` copies files):
-`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/mystery_script.sh ~/bin/`
+`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/mystery_script.sh ~/bin/`
 
 Right now, it's just a text file. We need to make it an executable program using **`chmod`** (Change Mode):
 `cd ~/bin`
@@ -113,7 +123,6 @@ We want `devcat` to run from anywhere, without needing the `./`. We do this by a
 Reload the configuration using **`source`** and verify it with **`echo`**:
 `source ~/.bashrc`
 `echo $PATH`
-You should see `home/<your-username>/bin` in the list displayed if you have done this correctly.
 
 ### Step 5: Testing DevCat
 Go to your home directory (`cd ~`). Let's create an empty text file using **`touch`**:
@@ -158,7 +167,7 @@ Activate the environment and install OpenCV:
 
 ### Step 3: Preparing the Assets
 Copy the Python script from the workshop repo to your current folder:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/sobel_edge.py .`
+`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/sobel_edge.py .`
 
 Now, let's download an image from the internet using `curl` and output (`-o`) it as `test_image.jpg`:
 `curl -o test_image.jpg https://raw.githubusercontent.com/opencv/opencv/master/samples/data/ml.png`
@@ -169,9 +178,8 @@ Open the Python script with `vim sobel_edge.py` and ensure the `target_image` va
 Run your python script:
 `python sobel_edge.py`
 
-A window should pop up showing the original image alongside a mathematically transformed image highlighting all the edges! This Sobel filter is foundational to how computers "see" shapes.
 
-**Next Steps:** With this environment set up, you are ready to plug in a USB camera, capture a live video feed, and pass those frames into an object recognition neural network like YOLO (You Only Look Once) to track real-world items in real-time!
+A window should pop up showing the original image alongside a mathematically transformed image highlighting all the edges! This Sobel filter is foundational to how computers "see" shapes.
 
 ---
 
@@ -196,7 +204,7 @@ Ensure you are still in your `opencv_testing` directory and your virtual environ
 `source .venv/bin/activate`
 
 Copy the camera test script from our workshop repository to your current working directory:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/usb_camera_test.py .`
+`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/usb_camera_test.py .`
 
 Let's look inside the script using our text editor to see how it works:
 `vim usb_camera_test.py`
@@ -225,7 +233,7 @@ Ensure you are still in your `opencv_testing` directory and your virtual environ
 `source .venv/bin/activate`
 
 Copy the real-time edge detection script from our workshop repository:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/live_sobel.py .`
+`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/live_sobel.py .`
 
 ### Step 2: Inspecting the Code
 Let's open it up in Vim to see how we combined the two concepts:
@@ -256,13 +264,13 @@ Applying heavy math (like the Sobel filter) to every pixel of every frame takes 
 
 Instead of analyzing every frame from scratch, we can take a "baseline" photo of the background. Then, for every new video frame, we mathematically subtract the new frame from the baseline. If the result is zero, nothing has changed. If the result is greater than zero, those specific pixels must represent movement! 
 
+
+
 ### Step 1: Preparing the Script
-Make sure your camera is plugged in, you are still in your `opencv_testing` directory, and your virtual environment is active:
-`cd ~/dev/opencv_testing`
-`source .venv/bin/activate`
+Make sure your camera is plugged in, you are still in your `opencv_testing` directory, and your virtual environment is active.
 
 Copy the motion detection script from our workshop repository:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/motion_detect.py .`
+`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/motion_detect.py .`
 
 ### Step 2: Inspecting the Code
 Let's open it up in our text editor:
@@ -303,7 +311,7 @@ Make sure your virtual environment is still active (`source .venv/bin/activate`)
 
 ### Step 2: Preparing the Script
 Copy the YOLO detection script from our workshop repository:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/yolo_detect.py .`
+`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/yolo_detect.py .`
 
 Let's look at the code:
 `vim yolo_detect.py`
@@ -336,7 +344,7 @@ By only running the AI on a small crop of the image, and *only* when motion is d
 
 ### Step 1: Preparing the Pipeline Script
 Copy the final script:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/smart_motion_classify.py .`
+`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/smart_motion_classify.py .`
 
 Inspect the grand finale:
 `vim smart_motion_classify.py`
