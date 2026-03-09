@@ -286,3 +286,67 @@ Press `q` on your keyboard while selecting one of the video windows to safely ex
 
 ### What's Next?
 Motion detection tells us *where* something is, but it doesn't tell us *what* it is. A waving tree branch will trigger this script just as easily as a person. To solve this, we need to introduce Deep Learning and Object Recognition...
+
+---
+
+## Part 7: Deep Learning with YOLO
+
+Motion detection tells us *where* something is, but it doesn't tell us *what* it is. A waving tree branch will trigger our motion script just as easily as a person. To solve this, we need to introduce Deep Learning and Object Recognition.
+
+We are going to use **YOLO** (You Only Look Once), specifically the state-of-the-art YOLO26 nano model (`yolov26n`). 
+
+
+
+### Step 1: Installing the AI Library
+Make sure your virtual environment is still active (`source .venv/bin/activate`). We need to install the Ultralytics library, which manages the YOLO models.
+`uv pip install ultralytics`
+
+### Step 2: Preparing the Script
+Copy the YOLO detection script from our workshop repository:
+`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/yolo_detect.py .`
+
+Let's look at the code:
+`vim yolo_detect.py`
+
+Notice how incredibly simple the Ultralytics library makes this. We load the model, pass it a frame, and it hands back the frame with bounding boxes and labels automatically drawn on it!
+
+*(Remember to check your `camera_id` variable before typing `:wq` to exit).*
+
+### Step 3: Run the AI
+Execute your script:
+`python yolo_detect.py`
+
+*Note: The very first time you run this, it will take a few seconds to download the `yolov26n.pt` model weights from the internet.*
+
+Hold up your phone, a coffee cup, or just sit in the frame. The AI should draw boxes around you and categorize you. 
+
+**The Problem:** You will likely notice the video feed is now quite laggy. Why? Because `yolov26n` is looking at the *entire* image frame, doing object detection, segmentation (finding the exact pixel outlines), and classification all at the same time. Doing this 30 times a second on an embedded device is a massive computational bottleneck. 
+
+How do we improve this? We combine our techniques.
+
+---
+
+## Part 8: The Ultimate Edge AI Pipeline
+
+To fix our lag, we are going to build a true Edge AI pipeline. We will use our highly efficient motion detection (CPU math) to find *where* things are. Then, we will crop out just the bounding box of the moving object and pass that tiny image to a specialized, classification-only AI model (`yolov26n-cls`). 
+
+By only running the AI on a small crop of the image, and *only* when motion is detected, our frame rate will skyrocket!
+
+
+
+### Step 1: Preparing the Pipeline Script
+Copy the final script:
+`cp ~/dev/Intro-to-Embedded-Linux-Development-and-Edge-AI/smart_motion_classify.py .`
+
+Inspect the grand finale:
+`vim smart_motion_classify.py`
+
+Scroll through and see how Part 6 and Part 7 have been merged. We find the motion contour, create an image `frame_crop` of just that moving area, and pass it to our `classifier_model`.
+
+### Step 2: Run the Pipeline
+Point your camera at a static background (so it can get its baseline) and run the script:
+`python smart_motion_classify.py`
+
+Step into the frame. You should see the green motion-tracking box from Part 6, but now it has a text label above it telling you exactly what is moving, running much smoother than Part 7!
+
+Congratulations! You have just built a highly optimized, context-aware Edge AI vision system from scratch.
