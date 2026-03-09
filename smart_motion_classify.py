@@ -1,5 +1,6 @@
 import cv2
 import sys
+import time
 from ultralytics import YOLO
 
 # Define the camera ID
@@ -19,6 +20,10 @@ def run_smart_pipeline(cam_id):
 
     print("Smart Pipeline started!")
     print("IMPORTANT: Ensure the camera is pointed at a static background.")
+    print("Warming up camera sensor for 2 seconds...")
+    
+    # Let the camera auto-exposure and auto-white-balance settle
+    time.sleep(2)
     
     # Grab the baseline frame for motion detection
     read_success, first_frame = video_capture.read()
@@ -41,9 +46,16 @@ def run_smart_pipeline(cam_id):
         thresh_frame = cv2.dilate(thresh_frame, None, iterations=2)
         motion_contours, _ = cv2.findContours(thresh_frame.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+        # Get the total area of the video frame to filter out lighting glitches
+        frame_height, frame_width = current_frame.shape[:2]
+        max_contour_area = (frame_width * frame_height) * 0.75 
+
         # --- CLASSIFYING ONLY THE MOVING OBJECTS ---
         for contour in motion_contours:
-            if cv2.contourArea(contour) < 2000: # Slightly larger threshold to get good crops
+            contour_area = cv2.contourArea(contour)
+            
+            # Ignore tiny movements and massive lighting changes
+            if contour_area < 2000 or contour_area > max_contour_area:
                 continue
 
             # Get the coordinates of the moving object
