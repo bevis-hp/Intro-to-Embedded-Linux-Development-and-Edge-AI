@@ -15,7 +15,11 @@ def run_yolo(cam_id):
 
     print("Loading YOLO model... (This may download weights on the first run)")
     # Load the YOLO26 nano model
-    detection_model = YOLO("yolov26n.pt")
+    detection_model = YOLO("yolo26n.pt")
+    
+    detection_model.export(format="ncnn")
+
+    ncnn_model = YOLO("yolo26n_ncnn_model")
 
     print("YOLO stream started! Press 'q' in the video window to quit.")
 
@@ -28,7 +32,7 @@ def run_yolo(cam_id):
 
         # Pass the frame to the YOLO model
         # stream=True keeps it memory efficient for video
-        ai_results = detection_model(video_frame, stream=True, verbose=False)
+        ai_results = ncnn_model(video_frame, stream=True, verbose=False)
 
         # Iterate through the results and plot them on the frame
         for result in ai_results:
