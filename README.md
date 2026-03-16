@@ -10,6 +10,10 @@ A workshop to teach student embedded developers how to set up a SBC with linux, 
            \___)=(___/                        ||----w |
                                               ||     ||
 
+
+
+**🚨 IMPORTANT HARDWARE REQUIREMENT:** This workshop requires a **Raspberry Pi 5**. The advanced AI model conversion steps later in the tutorial require significant memory and processing overhead that exceeds the pagefile limits of older Pi 4 models. 
+
 ## Part 1: Booting Up the Edge
 
 ### What is a Raspberry Pi and Edge AI?
@@ -31,7 +35,6 @@ Later on, we will need to see the graphical output of our computer vision script
 3. Select the recommended **Raspberry Pi OS (64-bit)** (Full desktop version).
 4. Select your SD card as the storage.
 5. **CRUCIAL STEP:** Before clicking write, edit the OS Customization settings!
-   
    * Set a hostname.
    * Set a username and password (write these down!).
    * Configure your Wi-Fi (if not using ethernet).
@@ -131,8 +134,6 @@ Now, run your command from anywhere!
 
 Check the file again with `cat test.txt`. The original text is gone, replaced entirely by cat language! *(The **`cat`** command, short for "concatenate," is most commonly used to quickly read a file and print its contents directly to your terminal screen).*
 
-*(Finished early? Check out [The Command Line Murders](https://github.com/veltman/clmystery) to practice your new detective CLI skills!)*
-
 ---
 
 ## Part 3: Edge AI with OpenCV
@@ -150,11 +151,9 @@ Install `uv` using **`curl`** (a command that downloads data from a server and p
 `curl -LsSf https://astral.sh/uv/install.sh | sh`
 `source $HOME/.local/bin/env`
 
-### Step 2: Setting up OpenCV
-Navigate to your dev folder, create a project folder, and create the virtual environment:
-`cd ~/dev`
-`mkdir opencv_testing`
-`cd opencv_testing`
+### Step 2: Setting up OpenCV Workspace
+Instead of making a new folder, we will set up our environment directly inside our cloned repository. 
+`cd ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI`
 `uv venv`
 
 Activate the environment and install OpenCV:
@@ -162,18 +161,14 @@ Activate the environment and install OpenCV:
 `uv pip install opencv-python numpy`
 
 ### Step 3: Preparing the Assets
-Copy the Python script from the workshop repo to your current folder:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/sobel_edge.py .`
-
-Now, let's download an image from the internet using `curl` and output (`-o`) it as `test_image.jpg`:
+Let's download an image from the internet using `curl` and output (`-o`) it as `test_image.jpg`:
 `curl -o test_image.jpg https://raw.githubusercontent.com/opencv/opencv/master/samples/data/ml.png`
 
-Open the Python script with `vim sobel_edge.py` and ensure the `target_image` variable matches the file you just downloaded (`test_image.jpg`).
+Open the Python script with `vim sobel_edge.py` and ensure the `target_image` variable matches the file you just downloaded (`test_image.jpg`). Remember to `:wq` to save and quit.
 
 ### Step 4: Run the Filter
 Run your python script:
 `python sobel_edge.py`
-
 
 A window should pop up showing the original image alongside a mathematically transformed image highlighting all the edges! This Sobel filter is foundational to how computers "see" shapes.
 
@@ -195,13 +190,7 @@ Now, list all connected video devices:
 You will see your camera's name (e.g., Logitech HD Pro Webcam) listed along with several `/dev/video` endpoints beneath it. Look for the very first `/dev/video` number listed under your camera's name (usually `/dev/video0`). That number (`0`) is your camera ID.
 
 ### Step 2: Preparing the Script
-Ensure you are still in your `opencv_testing` directory and your virtual environment is active:
-`cd ~/dev/opencv_testing`
-`source .venv/bin/activate`
-
-Copy the camera test script from our workshop repository to your current working directory:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/usb_camera_test.py .`
-
+Ensure you are still in your repository directory and your virtual environment is active.
 Let's look inside the script using our text editor to see how it works:
 `vim usb_camera_test.py`
 
@@ -211,11 +200,7 @@ Check the `camera_id` variable near the top of the file. If your camera ID from 
 Execute your script:
 `python usb_camera_test.py`
 
-A new window should open on your Raspberry Pi desktop via Raspberry Pi Connect showing a live video feed from your webcam. Wave to the camera! When you are ready to stop the stream, make sure the video window is actively selected and press the `q` key on your keyboard to safely exit the script and close the window.
-
-**Troubleshooting:**
-* **Wrong Camera ID:** If the script fails to open the camera, change the `camera_id` variable in your script to `1` or `2` (trying the other `/dev/video` numbers listed in Step 1).
-* **Low Voltage:** Webcams draw significant power. If a "Low voltage warning" appears on your desktop or the camera drops out, ensure you are using an official, properly rated Raspberry Pi power adapter.
+A new window should open on your Raspberry Pi desktop showing a live video feed from your webcam. When you are ready to stop the stream, make sure the video window is actively selected and press the `q` key on your keyboard.
 
 ---
 
@@ -223,129 +208,85 @@ A new window should open on your Raspberry Pi desktop via Raspberry Pi Connect s
 
 We have successfully processed a static image, and we have successfully streamed live video. Now, let's combine them. We are going to apply the Sobel edge detection filter to every single frame of our live video feed as it comes in. 
 
-### Step 1: Preparing the Script
-Ensure you are still in your `opencv_testing` directory and your virtual environment is active:
-`cd ~/dev/opencv_testing`
-`source .venv/bin/activate`
-
-Copy the real-time edge detection script from our workshop repository:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/live_sobel.py .`
-
-### Step 2: Inspecting the Code
+### Step 1: Inspecting the Code
 Let's open it up in Vim to see how we combined the two concepts:
 `vim live_sobel.py`
 
 Look closely at the `while True:` loop. You will see that instead of just displaying the frame, we are intercepting it, converting it to grayscale, doing the heavy Sobel math, and *then* displaying the newly generated edge frame. 
 
-*(Note: If your camera ID was not `0` in the last part, press `i`, change the `camera_id` variable, press `Esc`, and type `:wq` to save and quit. Otherwise, just type `:q` to exit).*
+*(Note: Change the `camera_id` variable using Insert Mode if needed, then type `:wq` or `:q` to exit).*
 
-### Step 3: Run the Edge Stream
+### Step 2: Run the Edge Stream
 Execute your script:
 `python live_sobel.py`
 
-You should now see two windows: your standard live feed, and a real-time feed consisting entirely of calculated edges! Move your hand in front of the camera and watch the math happen instantly. 
-
-Press `q` on your keyboard while selecting one of the video windows to close the program.
+You should now see two windows: your standard live feed, and a real-time feed consisting entirely of calculated edges! Press `q` while selecting one of the video windows to close the program.
 
 ### What's Next?
-Applying edge filters to every single frame of a 30fps video is just one image processing technique, but as you might have noticed if your video feed lagged slightly, it is quite computationally intensive. 
-
-Now that we have a live video feed established, we don't have to process every pixel. We can use simpler, more efficient techniques to compare frames against each other over time. This allows us to do **motion detection**, which leads us directly into Part 6...
+Applying edge filters to every single frame of a 30fps video is quite computationally intensive. Now that we have a live video feed established, we can use simpler, more efficient techniques to compare frames against each other over time. This allows us to do **motion detection**, which leads us directly into Part 6...
 
 ---
 
 ## Part 6: Motion Detection via Frame Differencing
 
-Applying heavy math (like the Sobel filter) to every pixel of every frame takes a lot of processing power. If we are building a security camera or a wildlife trap, we only care when something *moves*. 
+Instead of analyzing every frame from scratch, we can take a "baseline" photo of the background. Then, for every new video frame, we mathematically subtract the new frame from the baseline. If the result is greater than zero, those specific pixels must represent movement! 
 
-Instead of analyzing every frame from scratch, we can take a "baseline" photo of the background. Then, for every new video frame, we mathematically subtract the new frame from the baseline. If the result is zero, nothing has changed. If the result is greater than zero, those specific pixels must represent movement! 
-
-
-
-### Step 1: Preparing the Script
-Make sure your camera is plugged in, you are still in your `opencv_testing` directory, and your virtual environment is active.
-
-Copy the motion detection script from our workshop repository:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/motion_detect.py .`
-
-### Step 2: Inspecting the Code
-Let's open it up in our text editor:
+### Step 1: Inspecting the Code
 `vim motion_detect.py`
 
 Scroll down and look at the `cv2.absdiff()` function. This calculates the absolute difference between our initial baseline frame and the current frame. Next, we use `cv2.threshold()` to convert any slight changes into stark white pixels, and `cv2.findContours()` to draw a green box around those white pixels.
 
-*(Note: Remember to change the `camera_id` variable using Insert Mode if your camera is not at index `0`, then type `:wq` to save and quit).*
-
-### Step 3: Run the Motion Tracker
-**Important:** Before you run this command, point the camera at a static background and *step out of the frame*. The script uses the very first frame it sees as the empty baseline. 
+### Step 2: Run the Motion Tracker
+**Important:** Before you run this command, point the camera at a static background and *step out of the frame*. The script pauses for 2 seconds to let the camera adjust, then uses the very first frame it sees as the empty baseline. 
 
 Execute your script:
 `python motion_detect.py`
 
-Two windows will pop up:
-1. **Motion Detection:** The live color feed. When you walk into the frame, a green rectangle should track your movement.
-2. **Threshold (The Math):** A black-and-white window showing exactly what the computer "sees" as motion. White pixels are moving objects; black pixels are the static background.
-
-Press `q` on your keyboard while selecting one of the video windows to safely exit the program.
+Two windows will pop up: The live color feed with a tracking box, and a black-and-white window showing the math. Press `q` to safely exit the program.
 
 ### What's Next?
-Motion detection tells us *where* something is, but it doesn't tell us *what* it is. A waving tree branch will trigger this script just as easily as a person. To solve this, we need to introduce Deep Learning and Object Recognition...
+Motion detection tells us *where* something is, but it doesn't tell us *what* it is. To solve this, we need to introduce Deep Learning and Object Recognition.
 
 ---
 
 ## Part 7: Deep Learning with YOLO
 
-Motion detection tells us *where* something is, but it doesn't tell us *what* it is. A waving tree branch will trigger our motion script just as easily as a person. To solve this, we need to introduce Deep Learning and Object Recognition.
-
-We are going to use **YOLO** (You Only Look Once), specifically the state-of-the-art YOLO26 nano model (`yolov26n`). 
-
-
+We are going to use **YOLO** (You Only Look Once), specifically the highly-efficient `yolo28n` nano model. 
 
 ### Step 1: Installing the AI Library
-Make sure your virtual environment is still active (`source .venv/bin/activate`). We need to install the Ultralytics library, which manages the YOLO models.
-`uv pip install ultralytics`
+Make sure your virtual environment is still active. We need to install the Ultralytics library along with its export dependencies, which allows us to convert models for edge devices.
+`uv pip install ultralytics[export]`
 
-### Step 2: Preparing the Script
-Copy the YOLO detection script from our workshop repository:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/yolo_detect.py .`
+### Step 2: Convert to NCNN Format
+PyTorch models (`.pt`) run great on powerful desktop GPUs, but they are heavy. To run AI smoothly on a Raspberry Pi, we must convert the model into the **NCNN** format, an open-source neural network inference framework optimized for mobile ARM platforms.
 
-Let's look at the code:
-`vim yolo_detect.py`
 
-Notice how incredibly simple the Ultralytics library makes this. We load the model, pass it a frame, and it hands back the frame with bounding boxes and labels automatically drawn on it!
 
-*(Remember to check your `camera_id` variable before typing `:wq` to exit).*
+Run the conversion script provided in the workshop folder:
+`python export_ncnn.py`
+
+*Note: This will download the base `yolo28n.pt` and `yolo28n-cls.pt` models from the internet and convert them. This step requires heavy memory usage, which is why we need the Pi 5!*
 
 ### Step 3: Run the AI
-Execute your script:
+Check the `yolo_detect.py` script to ensure your `camera_id` is correct, then run it:
 `python yolo_detect.py`
 
-*Note: The very first time you run this, it will take a few seconds to download the `yolov26n.pt` model weights from the internet.*
+Hold up your phone or a coffee cup. The AI should draw boxes around you and categorize you. 
 
-Hold up your phone, a coffee cup, or just sit in the frame. The AI should draw boxes around you and categorize you. 
-
-**The Problem:** You will likely notice the video feed is now quite laggy. Why? Because `yolov26n` is looking at the *entire* image frame, doing object detection, segmentation (finding the exact pixel outlines), and classification all at the same time. Doing this 30 times a second on an embedded device is a massive computational bottleneck. 
-
-How do we improve this? We combine our techniques.
+**The Problem:** You will likely notice the video feed is laggy. Why? Because the model is looking at the *entire* image frame, doing object detection, bounding box prediction, and classification all at the same time. Doing this 30 times a second on an embedded device is a massive computational bottleneck. 
 
 ---
 
 ## Part 8: The Ultimate Edge AI Pipeline
 
-To fix our lag, we are going to build a true Edge AI pipeline. We will use our highly efficient motion detection (CPU math) to find *where* things are. Then, we will crop out just the bounding box of the moving object and pass that tiny image to a specialized, classification-only AI model (`yolov26n-cls`). 
+To fix our lag, we are going to build a true Edge AI pipeline. We will use our highly efficient motion detection (CPU math) to find *where* things are. Then, we will crop out just the bounding box of the moving object and pass that tiny image to a specialized, classification-only AI model (`yolo28n-cls`). 
 
 By only running the AI on a small crop of the image, and *only* when motion is detected, our frame rate will skyrocket!
 
-
-
-### Step 1: Preparing the Pipeline Script
-Copy the final script:
-`cp ~/dev/Intro-to-Embedded-Linux-Development-Computer-Vision-and-Edge-AI/smart_motion_classify.py .`
-
-Inspect the grand finale:
+### Step 1: Inspect the Pipeline Script
 `vim smart_motion_classify.py`
 
-Scroll through and see how Part 6 and Part 7 have been merged. We find the motion contour, create an image `frame_crop` of just that moving area, and pass it to our `classifier_model`.
+Scroll through and see how Part 6 and Part 7 have been merged. We find the motion contour, create an image `frame_crop` of just that moving area, and pass it to our NCNN classifier.
 
 ### Step 2: Run the Pipeline
 Point your camera at a static background (so it can get its baseline) and run the script:
