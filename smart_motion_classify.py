@@ -14,9 +14,9 @@ def run_smart_pipeline(cam_id):
         print(f"Error: Could not open camera {cam_id}.")
         sys.exit(1)
 
-    print("Loading specialized YOLO classification model...")
-    # Load the classification-only model (much faster, no localization)
-    classifier_model = YOLO("yolov26n-cls.pt")
+    print("Loading specialized NCNN classification model...")
+    # Load the exported classification-only NCNN directory
+    classifier_model = YOLO("yolo28n-cls_ncnn_model")
 
     print("Smart Pipeline started!")
     print("IMPORTANT: Ensure the camera is pointed at a static background.")
@@ -62,12 +62,11 @@ def run_smart_pipeline(cam_id):
             (box_x, box_y, box_w, box_h) = cv2.boundingRect(contour)
 
             # Crop the original color frame down to just the moving object's bounding box
-            # Python arrays slice as [y_start:y_end, x_start:x_end]
             frame_crop = current_frame[box_y:box_y+box_h, box_x:box_x+box_w]
 
             # Failsafe: ensure the crop isn't empty before passing to AI
             if frame_crop.size != 0:
-                # Pass ONLY the tiny cropped image to the classifier
+                # Pass ONLY the tiny cropped image to the NCNN classifier
                 ai_results = classifier_model(frame_crop, verbose=False)
                 
                 # Extract the top predicted class name
