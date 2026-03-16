@@ -84,7 +84,14 @@ Before we start making files, let's install a better text editor. We will use `a
 Run this command:
 `sudo apt-get install vim -y`
 
-*What is Vim?* It is an upgraded version of `vi`, one of the oldest text editors which, along with `nano`, comes preinstalled on almost all Linux distributions. Vim is notoriously a bit esoteric and relies heavily on keyboard commands instead of a mouse. However, once you get the hang of it, it becomes an absolute superpower for swiftly editing files on headless servers. Today will give you a small taste of that!
+*What is Vim?* It is an upgraded version of `vi`, one of the oldest text editors which, along with `nano`, comes preinstalled on almost all Linux distributions. Vim is notoriously a bit esoteric and relies heavily on keyboard commands instead of a mouse. It is a long-running joke in the software world that the hardest part of programming is simply figuring out how to exit Vim! 
+
+To save you from that trap, you need to understand Vim's **two main modes**:
+
+* **Normal Mode:** You start here. You cannot type standard text. Instead, your keyboard acts as a command board. Use your arrow keys (or the classic `h`, `j`, `k`, `l` keys if you want to look like a pro) to move your cursor around the file. 
+* **Insert Mode:** Press the `i` key to enter this mode. Now you can type text normally just like in Notepad or Word.
+* **The Escape Hatch:** To stop typing and go back to Normal Mode, press the `Esc` key.
+* **How to Exit:** While in Normal Mode, type `:wq` and hit `Enter` to **w**rite (save) and **q**uit. If you made a mistake and want to panic-exit without saving, type `:q!` and hit `Enter`.
 
 ### Step 2: Setting up the Workspace
 Create a development folder and clone our workshop repository:
@@ -114,10 +121,10 @@ It prints an ASCII cat and asks for a text file. Let's rename the script using *
 We want `devcat` to run from anywhere, without needing the `./`. We do this by adding our `bin` folder to the system's `$PATH`.
 1. Open your bash configuration file with the **`vim`** text editor:
    `vim ~/.bashrc`
-2. Press `G` (capital G) to jump to the bottom of the file.
-3. Press `o` (lowercase o) to open a new line and enter "Insert Mode".
+2. You are in Normal Mode. Press `G` (capital G) to jump to the bottom of the file.
+3. Press `o` (lowercase o) to open a new line below your cursor and automatically enter Insert Mode.
 4. Type exactly: `export PATH="$HOME/bin:$PATH"`
-5. Press `Esc` to exit Insert Mode.
+5. Press `Esc` to exit Insert Mode and return to Normal Mode.
 6. Type `:wq` and hit `Enter` to write the file and quit.
 
 Reload the configuration using **`source`** and verify it with **`echo`**:
@@ -128,13 +135,39 @@ Reload the configuration using **`source`** and verify it with **`echo`**:
 Go to your home directory (`cd ~`). Let's create an empty text file using **`touch`**:
 `touch test.txt`
 
-Open it with `vim test.txt`, press `i` to insert text, write a sentence, press `Esc`, and type `:wq` to save. 
+Open it with `vim test.txt`. Press `i` to enter Insert Mode, write a sentence, press `Esc` to return to Normal Mode, and type `:wq` to save and quit. 
 
 Now, run your command from anywhere!
 `devcat test.txt`
 
 Check the file again with `cat test.txt`. The original text is gone, replaced entirely by cat language! *(The **`cat`** command, short for "concatenate," is most commonly used to quickly read a file and print its contents directly to your terminal screen).*
 
+### Step 6: The Ultimate Cheat Sheet (The `man` Command)
+Before you rely on Google for command line help, you should know that Linux comes with a built-in instruction manual for almost everything. It is accessed using the **`man`** (manual) command.
+
+Try typing this:
+`man ls`
+
+This opens the official documentation for the `ls` command. You navigate this exactly like Vim: use your arrow keys to scroll up and down to read about all the different flags (like `-a` to show hidden files or `-l` to show file permissions). 
+
+When you are done reading, press **`q`** to quit and return to your terminal. 
+
+### Further Practice: Honing Your Developer Skills
+Mastering the command line, text editors, and version control takes practice, but it doesn't have to be boring. If you finish the workshop early or want to keep learning at home, check out these excellent interactive resources:
+
+**Command Line & Text Editing Games**
+* **Vim Adventures** ([vim-adventures.org](https://vim-adventures.org/)): An online Zelda-style puzzle game where you can only navigate and interact with the world by learning and using real Vim keyboard commands.
+* **The Command Line Murders** ([github.com/veltman/clmystery](https://github.com/veltman/clmystery)): A brilliant interactive mystery where you play a detective trying to solve a crime by using terminal commands (`grep`, `cat`, `ls`, etc.) to search through a suspect's file system for clues.
+* **OverTheWire: Bandit** ([overthewire.org/wargames/bandit](https://overthewire.org/wargames/bandit/)): A legendary "wargame" for beginners. You use SSH to log into a remote server, and each level requires you to use different Linux commands to locate the hidden password for the next level. 
+
+**Essential Developer Resources**
+* **ExplainShell** ([explainshell.com](https://explainshell.com/)): A massive lifesaver. You can paste any massive, confusing Linux command into the search bar, and it visually breaks down exactly what every single flag, argument, and pipe is doing.
+* **tldr pages** ([tldr.sh](https://tldr.sh/)): The traditional `man` pages we just looked at can be notoriously dense. `tldr` is a community-driven project that provides simplified, practical examples of how to actually use commands. You can even install it on your Pi (`sudo apt-get install tldr`) so you can type `tldr tar` instead of trying to decode a 40-page technical manual.
+* **Linux Journey** ([linuxjourney.com](https://linuxjourney.com/)): For a structured, beautifully designed, module-by-module guide to Linux after the workshop ends, this is the gold standard. It covers everything from basic text manipulation to networking and file permissions.
+
+**Mastering Git**
+* **Learn Git Branching** ([learngitbranching.js.org](https://learngitbranching.js.org/)): We used `git clone` today, but Git is a massive, incredibly powerful version control system. This site is the most visual and interactive way to learn Git on the web. It gives you a sandbox to type commands and watch the commit nodes branch and merge in real-time.
+  
 ---
 
 ## Part 3: Edge AI with OpenCV
