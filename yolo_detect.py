@@ -13,13 +13,9 @@ def run_yolo(cam_id):
         print(f"Error: Could not open camera {cam_id}.")
         sys.exit(1)
 
-    print("Loading YOLO model... (This may download weights on the first run)")
-    # Load the YOLO26 nano model
-    detection_model = YOLO("yolo26n.pt")
-    
-    detection_model.export(format="ncnn")
-
-    ncnn_model = YOLO("yolo26n_ncnn_model")
+    print("Loading optimized NCNN YOLO model...")
+    # Load the exported NCNN directory instead of the .pt file
+    detection_model = YOLO("yolo28n_ncnn_model")
 
     print("YOLO stream started! Press 'q' in the video window to quit.")
 
@@ -31,12 +27,10 @@ def run_yolo(cam_id):
             break
 
         # Pass the frame to the YOLO model
-        # stream=True keeps it memory efficient for video
-        ai_results = ncnn_model(video_frame, stream=True, verbose=False)
+        ai_results = detection_model(video_frame, stream=True, verbose=False)
 
         # Iterate through the results and plot them on the frame
         for result in ai_results:
-            # result.plot() automatically draws bounding boxes and labels
             annotated_frame = result.plot()
 
         # Display the live annotated feed
