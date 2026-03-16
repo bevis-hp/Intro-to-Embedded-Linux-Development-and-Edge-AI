@@ -10,9 +10,8 @@ A workshop to teach student embedded developers how to set up a SBC with linux, 
            \___)=(___/                        ||----w |
                                               ||     ||
 
-
-
 **🚨 IMPORTANT HARDWARE REQUIREMENT:** This workshop requires a **Raspberry Pi 5**. The advanced AI model conversion steps later in the tutorial require significant memory and processing overhead that exceeds the pagefile limits of older Pi 4 models. 
+
 
 ## Part 1: Booting Up the Edge
 
@@ -88,6 +87,8 @@ Run this command:
 
 To save you from that trap, you need to understand Vim's **two main modes**:
 
+
+
 * **Normal Mode:** You start here. You cannot type standard text. Instead, your keyboard acts as a command board. Use your arrow keys (or the classic `h`, `j`, `k`, `l` keys if you want to look like a pro) to move your cursor around the file. 
 * **Insert Mode:** Press the `i` key to enter this mode. Now you can type text normally just like in Notepad or Word.
 * **The Escape Hatch:** To stop typing and go back to Normal Mode, press the `Esc` key.
@@ -162,17 +163,24 @@ Mastering the command line, text editors, and version control takes practice, bu
 
 **Essential Developer Resources**
 * **ExplainShell** ([explainshell.com](https://explainshell.com/)): A massive lifesaver. You can paste any massive, confusing Linux command into the search bar, and it visually breaks down exactly what every single flag, argument, and pipe is doing.
+    
 * **tldr pages** ([tldr.sh](https://tldr.sh/)): The traditional `man` pages we just looked at can be notoriously dense. `tldr` is a community-driven project that provides simplified, practical examples of how to actually use commands. You can even install it on your Pi (`sudo apt-get install tldr`) so you can type `tldr tar` instead of trying to decode a 40-page technical manual.
 * **Linux Journey** ([linuxjourney.com](https://linuxjourney.com/)): For a structured, beautifully designed, module-by-module guide to Linux after the workshop ends, this is the gold standard. It covers everything from basic text manipulation to networking and file permissions.
 
 **Mastering Git**
 * **Learn Git Branching** ([learngitbranching.js.org](https://learngitbranching.js.org/)): We used `git clone` today, but Git is a massive, incredibly powerful version control system. This site is the most visual and interactive way to learn Git on the web. It gives you a sandbox to type commands and watch the commit nodes branch and merge in real-time.
-  
+    
+
 ---
 
-## Part 3: Edge AI with OpenCV
+## Part 3: Computer Vision Fundamentals (Sobel Filter)
 
-Now we transition from text to images. Because we are working with visual media, we need a desktop environment. 
+**Clarification Time: Computer Vision vs. Edge AI**
+Before we get to Artificial Intelligence, we need to understand standard Computer Vision (CV). Computer Vision uses mathematical algorithms and matrix calculations to process images. In this section, we will do *image edge detection*—which means mathematically finding the physical outlines of objects in a picture. 
+
+*Do not confuse this with Edge AI!* "Edge AI" refers to where the computing happens (on a local *edge device* like our Pi), while "image edge detection" refers to finding the borders of objects in a photo. 
+
+Because we are working with visual media, we need a desktop environment. 
 
 1. Go back to [connect.raspberrypi.com](https://connect.raspberrypi.com/).
 2. Connect to your Raspberry Pi using the **Screen Sharing** (Desktop) option.
@@ -202,10 +210,9 @@ Let's download an image from the internet using `curl` and output (`-o`) it as `
 Open the Python script with `vim sobel_edge.py`. Ensure the `target_image` variable matches the file you just downloaded (`test_image.jpg`). 
 
 Before we run it, let's look at how the OpenCV library (`cv2`) processes the image mathematically:
-* **`cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)`:** This strips the color data. Finding edges is about contrasting light and dark pixels; color just gets in the way and wastes memory.
-* **`cv2.Sobel(...)`:** This is the core math. It calculates the *derivative* (the rate of change) of pixel intensity. `sobel_x` looks for vertical edges (rapid changes left-to-right), and `sobel_y` looks for horizontal edges (rapid changes top-to-bottom).
-* **`cv2.addWeighted(...)`:** This function takes our isolated horizontal edges and vertical edges and blends them back together into a single, cohesive image.
-
+* **`cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)`:** This strips the color data. Finding physical image edges is about contrasting light and dark pixels; color just gets in the way and wastes memory.
+* **`cv2.Sobel(...)`:** This is the core math. It calculates the *derivative* (the rate of change) of pixel intensity. `sobel_x` looks for vertical lines (rapid changes left-to-right), and `sobel_y` looks for horizontal lines (rapid changes top-to-bottom).
+* **`cv2.addWeighted(...)`:** This function takes our isolated horizontal and vertical lines and blends them back together into a single, cohesive image.
 
 Type `:wq` to save and quit.
 
@@ -213,11 +220,11 @@ Type `:wq` to save and quit.
 Run your python script:
 `python sobel_edge.py`
 
-A window should pop up showing the original image alongside a mathematically transformed image highlighting all the edges! This Sobel filter is foundational to how computers "see" shapes.
+A window should pop up showing the original image alongside a mathematically transformed image highlighting all the object outlines! This Sobel filter is foundational to how computers "see" shapes.
 
 ---
 
-## Part 4: Live Video with a USB Camera
+## Part 4: Computer Vision with Live Video
 
 Now that we can process static images, let's process real-time video using a standard USB webcam. 
 
@@ -255,9 +262,9 @@ A new window should open on your Raspberry Pi desktop showing a live video feed 
 
 ---
 
-## Part 5: Seeing the Edges in Real-Time
+## Part 5: Real-Time Sobel Filters
 
-We have successfully processed a static image, and we have successfully streamed live video. Now, let's combine them. We are going to apply the Sobel edge detection filter to every single frame of our live video feed as it comes in. 
+We have successfully processed a static image, and we have successfully streamed live video. Now, let's combine them. We are going to apply the algorithmic Sobel filter to every single frame of our live video feed as it comes in. 
 
 ### Step 1: Inspecting the Code
 Let's open it up in Vim to see how we combined the two concepts:
@@ -274,14 +281,14 @@ Look closely at the `while True:` loop. The architecture of a real-time vision p
 Execute your script:
 `python live_sobel.py`
 
-You should now see two windows: your standard live feed, and a real-time feed consisting entirely of calculated edges! Press `q` while selecting one of the video windows to close the program.
+You should now see two windows: your standard live feed, and a real-time feed consisting entirely of calculated lines! Press `q` while selecting one of the video windows to close the program.
 
 ### What's Next?
-Applying edge filters to every single pixel of a 30fps video is quite computationally intensive. Now that we have a live video feed established, we can use simpler, more efficient techniques to compare frames against each other over time. This allows us to do **motion detection**, which leads us directly into Part 6...
+Applying math to every single pixel of a 30fps video is quite computationally intensive. Now that we have a live video feed established, we can use simpler, more efficient Computer Vision techniques to compare frames against each other over time. This allows us to do **motion detection**, which leads us directly into Part 6...
 
 ---
 
-## Part 6: Motion Detection via Frame Differencing
+## Part 6: Computer Vision: Motion Detection
 
 Instead of analyzing every frame from scratch, we can take a "baseline" photo of the static background. Then, for every new video frame, we mathematically subtract the new frame from the baseline. If the result is greater than zero, those specific pixels must represent movement! 
 
@@ -307,20 +314,24 @@ Execute your script:
 Two windows will pop up: The live color feed with a tracking box, and a black-and-white window showing the threshold math in action. Press `q` to safely exit the program.
 
 ### What's Next?
-Motion detection tells us *where* something is, but it doesn't tell us *what* it is. A waving tree branch triggers this script just as easily as a person. To solve this, we need to introduce Deep Learning and Object Recognition.
+Computer Vision motion detection tells us *where* something is, but it doesn't tell us *what* it is. A waving tree branch triggers this script just as easily as a person. To solve this, we are finally ready to step out of traditional algorithms and introduce true Edge AI.
 
 ---
 
-## Part 7: Deep Learning with YOLO
+## Part 7: Edge AI: Deep Learning with YOLO
 
-We are going to use **YOLO** (You Only Look Once), specifically the highly-efficient `yolo28n` nano model. 
+To actually classify the objects we are looking at, we are going to use a neural network called **YOLO** (You Only Look Once), specifically the highly-efficient `yolo28n` nano model. 
+
+**Why YOLO?** Older object detection models used a two-shot method: they would scan an image once to find potential objects, and then run a second scan to classify what those objects were. It was accurate, but painfully slow. 
+
+YOLO frames object detection as a single regression problem. It looks at the entire image exactly *once*, divides the image into a grid, and simultaneously predicts bounding boxes and class probabilities in a single pass. This architecture makes it incredibly fast and perfect for real-time Edge AI.
 
 ### Step 1: Installing the AI Library
-Make sure your virtual environment is still active. We need to install the Ultralytics library along with its export dependencies, which allows us to convert models for edge devices.
+Make sure your virtual environment is still active. We need to install the Ultralytics library along with its export dependencies.
 `uv pip install ultralytics[export]`
 
 ### Step 2: Convert to NCNN Format
-PyTorch models (`.pt`) run great on powerful desktop GPUs, but they are heavy. To run AI smoothly on a Raspberry Pi, we must convert the model into the **NCNN** format, an open-source neural network inference framework heavily optimized for mobile ARM processors.
+PyTorch AI models (`.pt`) run great on powerful desktop GPUs, but they are heavy. To run AI smoothly on a Raspberry Pi, we must convert the model into the **NCNN** format, an open-source neural network inference framework heavily optimized for mobile ARM processors.
 
 Run the conversion script provided in the workshop folder:
 `python export_ncnn.py`
@@ -330,7 +341,7 @@ Run the conversion script provided in the workshop folder:
 ### Step 3: Inspecting the Code
 `vim yolo_detect.py`
 
-The Ultralytics library hides almost all the complex math from us, making it incredibly easy to use:
+The Ultralytics library hides almost all the complex neural network math from us, making it incredibly easy to use:
 * **`YOLO("yolo28n_ncnn_model")`:** Instead of loading a `.pt` file, we are pointing YOLO directly to the highly-optimized NCNN directory we just generated.
 * **`ai_results = detection_model(...)`:** We pass the raw video frame directly to the neural network. 
 * **`result.plot()`:** This is a fantastic helper function. It automatically takes the raw coordinate data the AI generated, draws the bounding boxes, writes the class labels (like "person" or "cup"), and hands us back a fully annotated image ready to be displayed.
@@ -350,7 +361,7 @@ Hold up your phone or a coffee cup. The AI should draw boxes around you and cate
 
 ## Part 8: The Ultimate Edge AI Pipeline
 
-To fix our lag, we are going to build a true Edge AI pipeline. We will use our highly efficient motion detection (CPU math) to find *where* things are. Then, we will crop out just the bounding box of the moving object and pass that tiny image to a specialized, classification-only AI model (`yolo28n-cls`). 
+To fix our lag, we are going to build a true, optimized Edge AI pipeline. We will use our highly efficient motion detection math (from Part 6) to find *where* things are. Then, we will crop out just the bounding box of the moving object and pass that tiny image to a specialized, classification-only AI model (`yolo28n-cls`). 
 
 By only running the AI on a small crop of the image, and *only* when motion is detected, our frame rate will skyrocket!
 
@@ -360,7 +371,7 @@ By only running the AI on a small crop of the image, and *only* when motion is d
 Scroll through and see how Part 6 and Part 7 have been merged. This script represents a highly efficient architecture:
 * **`YOLO("yolo28n-cls_ncnn_model")`:** Notice the `-cls`. This model cannot find objects; it can only tell you what an image *is*. Because it lacks localization layers, it runs exponentially faster.
 * **`frame_crop = current_frame[box_y:box_y+box_h, box_x:box_x+box_w]`:** This is the magic line. In Python, images are just giant multi-dimensional arrays (grids of numbers). We are using array slicing to physically cut out a tiny rectangle containing only the moving object.
-* **`classifier_model(frame_crop)`:** Instead of handing the AI a giant 1920x1080 image, we hand it a tiny 200x300 pixel crop. Less data equals faster processing!
+* **`classifier_model(frame_crop)`:** Instead of handing the AI a giant 1920x1080 image, we hand it a tiny pixel crop. Less data equals faster processing!
 * **`ai_results[0].probs.top1`:** We dig into the AI's results array to grab its highest-confidence guess (the "top 1" probability).
 
 
