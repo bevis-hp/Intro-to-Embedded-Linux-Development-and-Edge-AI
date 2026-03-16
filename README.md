@@ -35,6 +35,7 @@ Later on, we will need to see the graphical output of our computer vision script
 3. Select the recommended **Raspberry Pi OS (64-bit)** (Full desktop version).
 4. Select your SD card as the storage.
 5. **CRUCIAL STEP:** Before clicking write, edit the OS Customization settings!
+   
    * Set a hostname.
    * Set a username and password (write these down!).
    * Configure your Wi-Fi (if not using ethernet).
@@ -164,9 +165,18 @@ Activate the environment and install OpenCV:
 Let's download an image from the internet using `curl` and output (`-o`) it as `test_image.jpg`:
 `curl -o test_image.jpg https://raw.githubusercontent.com/opencv/opencv/master/samples/data/ml.png`
 
-Open the Python script with `vim sobel_edge.py` and ensure the `target_image` variable matches the file you just downloaded (`test_image.jpg`). Remember to `:wq` to save and quit.
+### Step 4: Inspecting the Code
+Open the Python script with `vim sobel_edge.py`. Ensure the `target_image` variable matches the file you just downloaded (`test_image.jpg`). 
 
-### Step 4: Run the Filter
+Before we run it, let's look at how the OpenCV library (`cv2`) processes the image mathematically:
+* **`cv2.cvtColor(source, cv2.COLOR_BGR2GRAY)`:** This strips the color data. Finding edges is about contrasting light and dark pixels; color just gets in the way and wastes memory.
+* **`cv2.Sobel(...)`:** This is the core math. It calculates the *derivative* (the rate of change) of pixel intensity. `sobel_x` looks for vertical edges (rapid changes left-to-right), and `sobel_y` looks for horizontal edges (rapid changes top-to-bottom).
+* **`cv2.addWeighted(...)`:** This function takes our isolated horizontal edges and vertical edges and blends them back together into a single, cohesive image.
+
+
+Type `:wq` to save and quit.
+
+### Step 5: Run the Filter
 Run your python script:
 `python sobel_edge.py`
 
@@ -189,12 +199,20 @@ Now, list all connected video devices:
 
 You will see your camera's name (e.g., Logitech HD Pro Webcam) listed along with several `/dev/video` endpoints beneath it. Look for the very first `/dev/video` number listed under your camera's name (usually `/dev/video0`). That number (`0`) is your camera ID.
 
-### Step 2: Preparing the Script
+### Step 2: Inspecting the Code
 Ensure you are still in your repository directory and your virtual environment is active.
 Let's look inside the script using our text editor to see how it works:
 `vim usb_camera_test.py`
 
-Check the `camera_id` variable near the top of the file. If your camera ID from Step 1 was anything other than `0`, press `i` to enter Insert Mode, change the number, press `Esc`, and type `:wq` to save and quit. If it was `0`, you can just type `:q` to quit without saving.
+Check the `camera_id` variable near the top of the file. If your camera ID from Step 1 was anything other than `0`, press `i` to enter Insert Mode, change the number, and press `Esc`.
+
+Let's look at how we capture live video:
+* **`cv2.VideoCapture(camera_id)`:** This tells OpenCV to take control of the physical USB hardware.
+* **`while True:`:** Video is just a rapid series of static images. This creates an infinite loop that runs as fast as the Pi's processor allows.
+* **`video_capture.read()`:** Inside the loop, this grabs the absolute latest frame from the camera sensor. 
+* **`cv2.waitKey(1)`:** This tells the GUI window to pause for 1 millisecond to refresh the display, and simultaneously listens to see if you pressed the 'q' key to break the infinite loop.
+
+Type `:wq` to save and quit (or `:q` if you made no changes).
 
 ### Step 3: Run the Live Feed
 Execute your script:
@@ -212,7 +230,10 @@ We have successfully processed a static image, and we have successfully streamed
 Let's open it up in Vim to see how we combined the two concepts:
 `vim live_sobel.py`
 
-Look closely at the `while True:` loop. You will see that instead of just displaying the frame, we are intercepting it, converting it to grayscale, doing the heavy Sobel math, and *then* displaying the newly generated edge frame. 
+Look closely at the `while True:` loop. The architecture of a real-time vision pipeline is simply **Read -> Process -> Display**.
+1.  **Read:** We grab `video_frame` using `video_capture.read()`.
+2.  **Process:** Instead of immediately showing it, we pass that frame through the exact same `cvtColor`, `Sobel`, and `addWeighted` functions we used in Part 3.
+3.  **Display:** We show the newly generated `combined_edges` frame via `cv2.imshow()`.
 
 *(Note: Change the `camera_id` variable using Insert Mode if needed, then type `:wq` or `:q` to exit).*
 
@@ -223,29 +244,37 @@ Execute your script:
 You should now see two windows: your standard live feed, and a real-time feed consisting entirely of calculated edges! Press `q` while selecting one of the video windows to close the program.
 
 ### What's Next?
-Applying edge filters to every single frame of a 30fps video is quite computationally intensive. Now that we have a live video feed established, we can use simpler, more efficient techniques to compare frames against each other over time. This allows us to do **motion detection**, which leads us directly into Part 6...
+Applying edge filters to every single pixel of a 30fps video is quite computationally intensive. Now that we have a live video feed established, we can use simpler, more efficient techniques to compare frames against each other over time. This allows us to do **motion detection**, which leads us directly into Part 6...
 
 ---
 
 ## Part 6: Motion Detection via Frame Differencing
 
-Instead of analyzing every frame from scratch, we can take a "baseline" photo of the background. Then, for every new video frame, we mathematically subtract the new frame from the baseline. If the result is greater than zero, those specific pixels must represent movement! 
+Instead of analyzing every frame from scratch, we can take a "baseline" photo of the static background. Then, for every new video frame, we mathematically subtract the new frame from the baseline. If the result is greater than zero, those specific pixels must represent movement! 
 
 ### Step 1: Inspecting the Code
 `vim motion_detect.py`
 
-Scroll down and look at the `cv2.absdiff()` function. This calculates the absolute difference between our initial baseline frame and the current frame. Next, we use `cv2.threshold()` to convert any slight changes into stark white pixels, and `cv2.findContours()` to draw a green box around those white pixels.
+This script introduces some vital new concepts:
+* **`time.sleep(2)`:** When a webcam turns on, its auto-exposure and white-balance need a moment to settle. If we grab our baseline frame too early, a sudden lighting adjustment will make the script think the entire room is moving. 
+* **`cv2.GaussianBlur(...)`:** Cameras produce "noise" (tiny static artifacts). Blurring the image smooths out this noise so it isn't falsely flagged as motion.
+* **`cv2.absdiff(baseline, current_frame)`:** This function finds the absolute difference between the empty room and the current room. 
+* **`cv2.threshold(...)`:** This takes any pixel that changed and forces it to become stark white (`255`), turning everything else pure black (`0`). This creates a "binary mask".
+* **`cv2.findContours(...)`:** This function scans our binary mask and draws an invisible outline around any blob of white pixels, allowing us to generate our green bounding boxes!
+
+
+*(Note: Remember to change the `camera_id` variable if needed, then type `:wq` to save and quit).*
 
 ### Step 2: Run the Motion Tracker
-**Important:** Before you run this command, point the camera at a static background and *step out of the frame*. The script pauses for 2 seconds to let the camera adjust, then uses the very first frame it sees as the empty baseline. 
+**Important:** Before you run this command, point the camera at a static background and *step out of the frame*. 
 
 Execute your script:
 `python motion_detect.py`
 
-Two windows will pop up: The live color feed with a tracking box, and a black-and-white window showing the math. Press `q` to safely exit the program.
+Two windows will pop up: The live color feed with a tracking box, and a black-and-white window showing the threshold math in action. Press `q` to safely exit the program.
 
 ### What's Next?
-Motion detection tells us *where* something is, but it doesn't tell us *what* it is. To solve this, we need to introduce Deep Learning and Object Recognition.
+Motion detection tells us *where* something is, but it doesn't tell us *what* it is. A waving tree branch triggers this script just as easily as a person. To solve this, we need to introduce Deep Learning and Object Recognition.
 
 ---
 
@@ -258,22 +287,31 @@ Make sure your virtual environment is still active. We need to install the Ultra
 `uv pip install ultralytics[export]`
 
 ### Step 2: Convert to NCNN Format
-PyTorch models (`.pt`) run great on powerful desktop GPUs, but they are heavy. To run AI smoothly on a Raspberry Pi, we must convert the model into the **NCNN** format, an open-source neural network inference framework optimized for mobile ARM platforms.
-
-
+PyTorch models (`.pt`) run great on powerful desktop GPUs, but they are heavy. To run AI smoothly on a Raspberry Pi, we must convert the model into the **NCNN** format, an open-source neural network inference framework heavily optimized for mobile ARM processors.
 
 Run the conversion script provided in the workshop folder:
 `python export_ncnn.py`
 
-*Note: This will download the base `yolo28n.pt` and `yolo28n-cls.pt` models from the internet and convert them. This step requires heavy memory usage, which is why we need the Pi 5!*
+*Note: This will download the base `yolo28n.pt` and `yolo28n-cls.pt` models from the internet and convert them into directories. This step requires heavy memory usage, which is why we need the Pi 5!*
 
-### Step 3: Run the AI
-Check the `yolo_detect.py` script to ensure your `camera_id` is correct, then run it:
+### Step 3: Inspecting the Code
+`vim yolo_detect.py`
+
+The Ultralytics library hides almost all the complex math from us, making it incredibly easy to use:
+* **`YOLO("yolo28n_ncnn_model")`:** Instead of loading a `.pt` file, we are pointing YOLO directly to the highly-optimized NCNN directory we just generated.
+* **`ai_results = detection_model(...)`:** We pass the raw video frame directly to the neural network. 
+* **`result.plot()`:** This is a fantastic helper function. It automatically takes the raw coordinate data the AI generated, draws the bounding boxes, writes the class labels (like "person" or "cup"), and hands us back a fully annotated image ready to be displayed.
+
+
+*(Check your `camera_id` and `:wq` to exit).*
+
+### Step 4: Run the AI
+Run the script:
 `python yolo_detect.py`
 
 Hold up your phone or a coffee cup. The AI should draw boxes around you and categorize you. 
 
-**The Problem:** You will likely notice the video feed is laggy. Why? Because the model is looking at the *entire* image frame, doing object detection, bounding box prediction, and classification all at the same time. Doing this 30 times a second on an embedded device is a massive computational bottleneck. 
+**The Problem:** You will likely notice the video feed is laggy. Why? Because the model is looking at the *entire* 1080p image frame, doing object detection, localization (finding the exact coordinates), and classification all at the same time. Doing this 30 times a second on an embedded device is a massive bottleneck. 
 
 ---
 
@@ -286,7 +324,12 @@ By only running the AI on a small crop of the image, and *only* when motion is d
 ### Step 1: Inspect the Pipeline Script
 `vim smart_motion_classify.py`
 
-Scroll through and see how Part 6 and Part 7 have been merged. We find the motion contour, create an image `frame_crop` of just that moving area, and pass it to our NCNN classifier.
+Scroll through and see how Part 6 and Part 7 have been merged. This script represents a highly efficient architecture:
+* **`YOLO("yolo28n-cls_ncnn_model")`:** Notice the `-cls`. This model cannot find objects; it can only tell you what an image *is*. Because it lacks localization layers, it runs exponentially faster.
+* **`frame_crop = current_frame[box_y:box_y+box_h, box_x:box_x+box_w]`:** This is the magic line. In Python, images are just giant multi-dimensional arrays (grids of numbers). We are using array slicing to physically cut out a tiny rectangle containing only the moving object.
+* **`classifier_model(frame_crop)`:** Instead of handing the AI a giant 1920x1080 image, we hand it a tiny 200x300 pixel crop. Less data equals faster processing!
+* **`ai_results[0].probs.top1`:** We dig into the AI's results array to grab its highest-confidence guess (the "top 1" probability).
+
 
 ### Step 2: Run the Pipeline
 Point your camera at a static background (so it can get its baseline) and run the script:
