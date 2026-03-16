@@ -1,5 +1,5 @@
 # Intro to Embedded Linux Development, Computer Vision and Edge AI
-A workshop to teach student embedded developers how to set up a SBC with linux, the basics of the command line and running OpenCV.
+A workshop to teach beginner embedded developers how to set up a SBC with linux, the basics of the Command Line, Python enviroments, OpenCV and Deep Learning Detection Models
 
       ____     .--.               _____ 
      | !? |   |o_o |             < OOM >
